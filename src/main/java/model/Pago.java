@@ -23,11 +23,11 @@ public class Pago {
     
     //Constructor
     
-    public Pago(int Mes, int Año, double Monto) {
+    public Pago(int Mes, int Año, int NumeroCasa) {
         this.Mes = Mes;
         this.Año = Año;
         this.NumeroCasa = NumeroCasa;
-        this.Monto = Monto;
+        this.Monto = Configuracion.getCuotaMante();
         this.FechaRegistro = LocalDate.now();
         
     }
