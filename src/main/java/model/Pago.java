@@ -19,7 +19,7 @@ public class Pago {
     private int Año;
     private double Monto;
     private int NumeroCasa;
-    private LocalDate FechaRegistro; 
+    private final LocalDate FechaRegistro; 
     
     //Constructor
     
@@ -66,6 +66,10 @@ public class Pago {
     public void setAño(int Año) {
         this.Año = Año;
         
+    }
+    
+    public void setMonto(double monto) {
+        this.Monto = monto;
     }
     
     public void setNumeroCasa(int NumeroCasa) {
