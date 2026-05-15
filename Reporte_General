@@ -1,0 +1,210 @@
+# Proyecto Reporte Condominio Vista Verde
+
+## 1. Configuración del Proyecto (pom.xml)
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://apache.org" xmlns:xsi="http://w3.org" xsi:schemaLocation="http://apache.org http://apache.org">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.mycompany</groupId>
+    <artifactId>Reporte1</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>26</maven.compiler.release>
+        <exec.mainClass>com.mycompany.reporte1.Reporte1</exec.mainClass>
+    </properties>
+     <dependencies>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.45.3.0</version>
+        </dependency>
+    </dependencies>
+</project>
+```
+
+## 2. Clase de Arranque (Reporte1.java)
+```java
+package com.mycompany.reporte1;
+
+public class Reporte1 {
+    public static void main(String[] args) {
+        java.awt.EventQueue.invokeLater(() -> {
+            // Crea y hace visible la ventana de tu reporte
+            new General1().setVisible(true);
+        });
+    }
+}
+```
+
+## 3. Ventana Principal de la Interfaz (General1.java)
+```java
+package com.mycompany.reporte1;
+
+public class General1 extends javax.swing.JFrame {
+    
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(General1.class.getName());
+
+    public General1() {
+        initComponents();
+        this.setLocationRelativeTo(null); 
+        configurarTabla();               
+        inicializarBaseDatos();      
+        cargarDatosDesdeBaseDatos();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initComponents() {
+        jLabel1 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jLabel2 = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); 
+        jLabel1.setText("Reporte General del condominio");
+
+        jButton1.setText("Refresh");
+        jButton1.addActionListener(this::jButton1ActionPerformed);
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "No. Casa", "Propietario", "Estado del Mes actual (pagado/Pendiente)", "Total pagado al año"
+            }
+        ));
+        jScrollPane1.setViewportView(jTable1);
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 2, 14)); 
+        jLabel2.setText("Total Recaudado: Q[Suma de los pagados] / Total Esperado: Q45000.00");
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(167, 167, 167)
+                        .addComponent(jLabel1))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(257, 257, 257)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(85, 85, 85)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 547, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 479, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(29, 29, 29)))
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 467, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(27, 27, 27))
+        );
+        pack();
+    }                       
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        cargarDatosDesdeBaseDatos();
+    }                                        
+
+    private void configurarTabla() {
+        jTable1.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                java.awt.Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (table.getValueAt(row, 2) != null) {
+                    String estado = table.getValueAt(row, 2).toString();
+                    if (column == 2) {
+                        if ("Pagado".equalsIgnoreCase(estado)) {
+                            c.setForeground(new java.awt.Color(0, 153, 0)); 
+                        } else {
+                            c.setForeground(java.awt.Color.RED); 
+                        }
+                    } else {
+                        c.setForeground(java.awt.Color.BLACK); 
+                    }
+                }
+                return c;
+            }
+        });
+    }
+
+    private java.sql.Connection conectar() {
+        try {
+            String url = "jdbc:sqlite:condominio_vistaverde.db"; 
+            return java.sql.DriverManager.getConnection(url);
+        } catch (java.sql.SQLException e) {
+            System.out.println("Error de conexión: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private void cargarDatosDesdeBaseDatos() {
+        javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) jTable1.getModel();
+        modelo.setRowCount(0); 
+        String sql = "SELECT numero_casa, nombre_encargado, estado_pago FROM Casas";
+        double totalRecaudado = 0;
+        double cuotaBase = 1500.00; 
+
+        try (java.sql.Connection conn = conectar();
+             java.sql.Statement stmt = conn.createStatement();
+             java.sql.ResultSet rs = stmt.executeQuery(sql)) {
+             
+            while (rs.next()) {
+                int numCasa = rs.getInt("numero_casa");
+                String propietario = rs.getString("nombre_encargado");
+                String estado = rs.getString("estado_pago");
+                
+                double pagadoAlAño = "Pagado".equalsIgnoreCase(estado) ? cuotaBase : 0;
+                if ("Pagado".equalsIgnoreCase(estado)) {
+                    totalRecaudado += cuotaBase;
+                }
+
+                modelo.addRow(new Object[]{
+                    numCasa, 
+                    propietario, 
+                    estado, 
+                    "Q" + String.format("%.2f", pagadoAlAño)
+                });
+            }
+            jLabel2.setText(String.format("Total Recaudado: Q%.2f / Total Esperado: Q45000.00", totalRecaudado));
+            
+        } catch (java.sql.SQLException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error al cargar la BD: " + e.getMessage());
+        }
+    }
+
+    private void inicializarBaseDatos() {
+        String url = "jdbc:sqlite:condominio_vistaverde.db";
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(url)) {
+            // Base de datos conectada con éxito
+        } catch (java.sql.SQLException e) {
+            System.out.println("Error al inicializar base de datos: " + e.getMessage());
+        }
+    }                  
+    private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable jTable1;                 
+}
+```
