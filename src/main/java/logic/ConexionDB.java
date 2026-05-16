@@ -13,35 +13,28 @@ import java.sql.SQLException;
  * @author bjsmg
  */
 public class ConexionDB {
-    
-    private static ConexionDB instancia;
-    
-    private Connection Conexion;
-    
-    private final String URL = "jdbc:sqlite:condominio.db";
-    
-    private ConexionDB() {
-        
+    private static Connection conexion = null;
+    // 
+    private static final String URL = "jdbc:sqlite:condominio_vistaverde.db";
+
+    // Constructor privado para evitar que creen instancias con 'new'
+    private ConexionDB() {}
+
+    /**
+     * Método estático para obtener la conexión
+     * @return Connection objeto de conexión a SQLite
+     */
+    public static Connection getConexion() {
         try {
-            Conexion = DriverManager.getConnection(URL);
-            System.out.println("C onexión a la DB exitosa");
-            
-        } catch(SQLException e) {
-            System.out.println("Error de conexión");
+            // Si la conexión no existe o se cerró, la creamos
+            if (conexion == null || conexion.isClosed()) {
+                // Esto busca el driver de SQLite 
+                conexion = DriverManager.getConnection(URL);
+                System.out.println("LOG: Conexión establecida con SQLite.");
+            }
+        } catch (SQLException e) {
+            System.err.println("ERROR: No se pudo conectar a la base de datos: " + e.getMessage());
         }
+        return conexion;
     }
-    
-    public static ConexionDB getInstancia() {
-        
-        if(instancia == null) {
-            instancia = new ConexionDB();
-            
-        }
-        return instancia;
-    }
-    
-    public Connection getConexion() {
-        return Conexion;
-    }
-    
 }
