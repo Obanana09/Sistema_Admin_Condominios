@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
+import com.formdev.flatlaf.FlatDarkLaf;
+import javax.swing.UIManager;
 
 public class Condominio {
     private ArrayList<Casa> listaCasas;
@@ -43,4 +45,23 @@ public class Condominio {
     public ArrayList<Casa> getListaCasas() {
         return listaCasas;
     }
+ public static void main(String[] args) {
+        
+        // 1. Activamos FlatLaf para que todo el sistema de condominios sea moderno
+        try {
+            UIManager.setLookAndFeel(new FlatDarkLaf());
+        } catch (Exception ex) {
+            System.err.println("Error al inicializar FlatLaf: " + ex.getMessage());
+        }
+
+        // 2. Aquí llamamos a la ventana de los condominios
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                // REEMPLAZA 'VentanaCondominios' por el nombre real de tu JFrame 
+                // (por ejemplo: MenuPrincipal, Login, o FrmCondominio)
+                new VentanaCondominios().setVisible(true); 
+            }
+        });
+    }
+}
 }
