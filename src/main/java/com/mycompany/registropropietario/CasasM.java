@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package com.mycompany.morosos;
+package com.mycompany.registropropietario;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -43,16 +43,15 @@ public class CasasM extends javax.swing.JFrame {
         String periodoFormateado = mes.substring(0, 1).toUpperCase() + mes.substring(1) + " " + anio;
         lblperiodo.setText("Periodo Consultado: " + periodoFormateado);
     }
-    private Connection conectar() {
-        try {
-            // Conexión directa a tu base de datos SQLite local
-            String url = "jdbc:sqlite:condominio_vistaverde.db"; 
-            return DriverManager.getConnection(url);
-        } catch (SQLException e) {
-            System.out.println("Error de conexión en módulo morosos: " + e.getMessage());
-            return null;
-        }
+    
+    private java.sql.Connection conectar() {
+    try {
+        return ConexionDB.getConexion();
+    } catch (java.sql.SQLException e) {
+        System.out.println("Error de conexión en módulo morosos: " + e.getMessage());
+        return null;
     }
+}
 
     private void cargarCasasMorosas() {
           DefaultTableModel modelo = (DefaultTableModel) tablaMorosos.getModel();
@@ -83,8 +82,11 @@ public class CasasM extends javax.swing.JFrame {
         }
 
         // 2. CONSULTA COMPLETA: Ahora sí podemos pedir el correo con total seguridad
-        String sql = "SELECT numero_casa, nombre_encargado, telefono, correo FROM Casas WHERE estado_pago = 'Pendiente'";
-
+        String sql = "SELECT c.numero_casa, p.nombre, p.telefono, p.correo " +
+             "FROM Casas c " +
+             "LEFT JOIN Propietarios p ON c.id_propietario = p.id_propietario " +
+             "WHERE c.id_propietario IS NOT NULL";
+        
         try (Connection conn = conectar();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
@@ -92,7 +94,7 @@ public class CasasM extends javax.swing.JFrame {
             while (rs.next()) {
                 contadorMorosos++;
                 int numCasa = rs.getInt("numero_casa");
-                String propietario = rs.getString("nombre_encargado");
+                String propietario = rs.getString("nombre");
                 String telefono = rs.getString("telefono");
                 String correo = rs.getString("correo"); // Leerá el correo real
 
@@ -140,6 +142,7 @@ public class CasasM extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaMorosos = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -167,6 +170,9 @@ public class CasasM extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
         jLabel3.setText("Casas Morosas:");
 
+        jButton1.setText("Volver");
+        jButton1.addActionListener(this::jButton1ActionPerformed);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -181,7 +187,9 @@ public class CasasM extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 452, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(15, 15, 15)))
-                        .addGap(0, 112, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton1)
+                        .addGap(0, 22, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 241, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -195,8 +203,13 @@ public class CasasM extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblconteo, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addGap(140, 140, 140)))
                 .addComponent(jLabel3)
                 .addContainerGap(19, Short.MAX_VALUE))
         );
@@ -204,28 +217,26 @@ public class CasasM extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        new MenuInicio().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
+          try {
+        com.formdev.flatlaf.FlatLightLaf.setup();
+        } catch (Exception e) { }
+        java.awt.EventQueue.invokeLater(() -> new CasasM().setVisible(true));
         }
 
-        /* Ejecuta la ventana */
-        java.awt.EventQueue.invokeLater(() -> {
-            new CasasM().setVisible(true);
-        });
-    }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblconteo;
