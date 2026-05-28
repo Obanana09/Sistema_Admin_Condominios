@@ -20,12 +20,8 @@ public class MenuInicio extends javax.swing.JFrame {
      */
     public MenuInicio() {
         initComponents();
-        jButton1.addActionListener(this::jButton1ActionPerformed);
-        jButton2.addActionListener(this::jButton2ActionPerformed);
-        jButton3.addActionListener(this::jButton3ActionPerformed);
         configurarVentana();
-    mostrarFecha();
-
+        mostrarFecha();
     }
 private void configurarVentana() {
     setLocationRelativeTo(null);

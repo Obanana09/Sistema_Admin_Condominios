@@ -4,13 +4,12 @@
 
 package com.mycompany.registropropietario;
 
-/**
- *
- * @author silve
- */
+import com.formdev.flatlaf.FlatDarculaLaf;
+
 public class RegistroPropietario {
 
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        FlatDarculaLaf.setup();
+        java.awt.EventQueue.invokeLater(() -> new Login().setVisible(true));
     }
 }

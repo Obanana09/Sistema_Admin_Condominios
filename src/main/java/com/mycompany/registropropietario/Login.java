@@ -17,7 +17,6 @@ public class Login extends javax.swing.JFrame {
         initComponents();
         configurarVentana();
         jPasswordField1.setText("");
-        jButton1.addActionListener(this::jButton1ActionPerformed);
     }
     
    
