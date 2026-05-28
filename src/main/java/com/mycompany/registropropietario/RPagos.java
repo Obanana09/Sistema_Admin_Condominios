@@ -237,7 +237,7 @@ public class RPagos extends javax.swing.JFrame {
                     "Pago registrado exitosamente.\n\n"
                   + "  Casa:   " + numeroCasa + "\n"
                   + "  Mes:    " + mesSel + " " + anio + "\n"
-                  + "  Monto:  Q " + jLabel6.getText() + " GTQ",
+                  + "  Monto:  " + jLabel6.getText(),
                     "Pago exitoso",
                     javax.swing.JOptionPane.INFORMATION_MESSAGE);
 

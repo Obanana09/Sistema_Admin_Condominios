@@ -53,6 +53,7 @@ public class General extends javax.swing.JFrame {
         jLabel1.setText("Reporte General del Condominio");
 
         jButton1.setText("Volver");
+        jButton1.addActionListener(this::jButton1ActionPerformed);
 
         jButton2.setText("Refresh");
         jButton2.addActionListener(this::jButton2ActionPerformed);
@@ -116,16 +117,19 @@ public class General extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-        new MenuInicio().setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_jButton2ActionPerformed
-/**
+    /**
      * Acción del botón "Refresh": recarga los datos desde la base de datos.
      */
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         cargarDatosDesdeBaseDatos();
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    /**
+     * Acción del botón "Volver": regresa al menú principal.
+     */
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        new MenuInicio().setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     
@@ -189,7 +193,7 @@ public class General extends javax.swing.JFrame {
             Class.forName("org.sqlite.JDBC");
 
             // Ruta relativa: el archivo debe estar en la raíz del proyecto NetBeans
-            String urlConexion = "jdbc:sqlite:condominio_vistaverde.db";
+            String urlConexion = "jdbc:sqlite:BD/condominio_vistaverde.db";
             return java.sql.DriverManager.getConnection(urlConexion);
 
         } catch (ClassNotFoundException e) {
