@@ -77,11 +77,11 @@ public class RPagos extends javax.swing.JFrame {
 
         jLabel6.setText("Q. 1,500.00");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30" }));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione una casa", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30" }));
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre ", "Diciembre" }));
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione un mes", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" }));
 
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "2026", "2027" }));
+        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccione un año", "2026", "2027" }));
 
         jButton1.setText("Registrar Pago");
         jButton1.addActionListener(this::jButton1ActionPerformed);
@@ -170,8 +170,11 @@ public class RPagos extends javax.swing.JFrame {
         String mesSel   = (String) jComboBox2.getSelectedItem();
         String anioSel  = (String) jComboBox3.getSelectedItem();
 
-        if (casaSel == null || mesSel == null || anioSel == null) {
-            mostrarError("Selecciona todos los campos antes de registrar.");
+        if (casaSel == null || mesSel == null || anioSel == null
+                || casaSel.equals("Seleccione una casa")
+                || mesSel.equals("Seleccione un mes")
+                || anioSel.equals("Seleccione un año")) {
+            mostrarError("Selecciona la casa, el mes y el año antes de registrar.");
             return;
         }
 
@@ -222,22 +225,59 @@ public class RPagos extends javax.swing.JFrame {
             return;
         }
 
-        // 3. Registrar el pago
+        // 3. Obtener el propietario y su correo. Si no tiene correo registrado,
+        //    no se registra el pago (el aviso es obligatorio).
+        EnviarCorreo.Propietario prop = EnviarCorreo.propietarioPorCasa(numeroCasa);
+        if (prop == null) {
+            mostrarError("La casa " + numeroCasa + " no tiene un correo registrado.\n"
+                       + "No se puede registrar el pago sin enviar la confirmación.");
+            return;
+        }
+
+        // 4. Registrar el pago dentro de una transacción: solo se confirma si el
+        //    correo se envía correctamente; si falla, se revierte.
         String sqlInsert = "INSERT INTO Pagos (numero_casa, mes, año, monto) VALUES (?, ?, ?, ?)";
-        try (java.sql.Connection con = ConexionDB.getConexion();
-             java.sql.PreparedStatement ps = con.prepareStatement(sqlInsert)) {
-            ps.setInt(1, numeroCasa);
-            ps.setInt(2, numeroMes);
-            ps.setInt(3, anio);
-            double cuotaActual = Double.parseDouble(jLabel6.getText().replace("Q. ", "").replace(",", ""));
-            ps.setDouble(4, cuotaActual);
-            ps.executeUpdate();
+        try (java.sql.Connection con = ConexionDB.getConexion()) {
+            con.setAutoCommit(false);
+            try (java.sql.PreparedStatement ps = con.prepareStatement(sqlInsert)) {
+                ps.setInt(1, numeroCasa);
+                ps.setInt(2, numeroMes);
+                ps.setInt(3, anio);
+                double cuotaActual = Double.parseDouble(jLabel6.getText().replace("Q. ", "").replace(",", ""));
+                ps.setDouble(4, cuotaActual);
+                ps.executeUpdate();
+
+                String asunto = "Confirmación de pago - Casa " + numeroCasa;
+                String cuerpo = "Estimado(a) " + prop.nombre + ",\n\n"
+                              + "Se ha registrado exitosamente su pago:\n\n"
+                              + "  Casa:   " + numeroCasa + "\n"
+                              + "  Mes:    " + mesSel + " " + anio + "\n"
+                              + "  Monto:  " + jLabel6.getText() + "\n\n"
+                              + "Gracias por estar al día con sus cuotas.\n\n"
+                              + "Atentamente,\n" + EmailConfig.NOMBRE_REMITENTE;
+
+                try {
+                    EnviarCorreo.enviar(prop.correo, asunto, cuerpo);
+                } catch (javax.mail.MessagingException me) {
+                    con.rollback();
+                    mostrarError("El pago no se registró porque no se pudo enviar el "
+                               + "correo de confirmación a " + prop.correo + ":\n"
+                               + me.getMessage());
+                    return;
+                }
+
+                con.commit();
+            } catch (java.sql.SQLException e) {
+                con.rollback();
+                throw e;
+            }
 
             javax.swing.JOptionPane.showMessageDialog(this,
                     "Pago registrado exitosamente.\n\n"
                   + "  Casa:   " + numeroCasa + "\n"
                   + "  Mes:    " + mesSel + " " + anio + "\n"
-                  + "  Monto:  " + jLabel6.getText(),
+                  + "  Monto:  " + jLabel6.getText() + "\n\n"
+                  + "Se envió la confirmación a " + prop.correo,
                     "Pago exitoso",
                     javax.swing.JOptionPane.INFORMATION_MESSAGE);
 
@@ -246,7 +286,7 @@ public class RPagos extends javax.swing.JFrame {
         } catch (java.sql.SQLException e) {
             mostrarError("Error al registrar pago: " + e.getMessage());
         }
-    
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed

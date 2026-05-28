@@ -23,6 +23,7 @@ public class RPropietario extends javax.swing.JFrame {
 
     private void cargarCasasDisponibles() {
         jComboBox1.removeAllItems();
+        jComboBox1.addItem("Seleccione una casa");
         String sql = "SELECT numero_casa FROM Casas WHERE id_propietario IS NULL ORDER BY numero_casa";
         try (Connection con = ConexionDB.getConexion();
              Statement st = con.createStatement();
@@ -33,7 +34,9 @@ public class RPropietario extends javax.swing.JFrame {
         } catch (SQLException e) {
             mostrarError("Error al cargar casas: " + e.getMessage());
         }
-        if (jComboBox1.getItemCount() == 0) {
+        // Solo está el placeholder: no hay casas libres
+        if (jComboBox1.getItemCount() == 1) {
+            jComboBox1.removeAllItems();
             jComboBox1.addItem("Sin casas disponibles");
             jButton1.setEnabled(false);
         } else {
@@ -200,6 +203,10 @@ public class RPropietario extends javax.swing.JFrame {
         }
         if (casaSel == null || casaSel.equals("Sin casas disponibles")) {
             mostrarError("No hay casas disponibles para registrar.");
+            return;
+        }
+        if (casaSel.equals("Seleccione una casa")) {
+            mostrarError("Selecciona una casa válida.");
             return;
         }
         if (!correoEsValido(correo)) {

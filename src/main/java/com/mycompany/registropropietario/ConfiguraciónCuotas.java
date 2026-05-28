@@ -193,10 +193,43 @@ try (java.sql.Connection con = ConexionDB.getConexion();
     mostrarError("Error al guardar cuota: " + e.getMessage());
     return;
 }
+        // 6. Notificar por correo a todos los propietarios con correo registrado
+        int enviados = 0;
+        int fallidos = 0;
+        String asunto = "Actualización de cuota mensual";
+        String sqlPropietarios = "SELECT nombre, correo FROM Propietarios "
+                               + "WHERE correo IS NOT NULL AND correo <> ''";
+        try (java.sql.Connection con = ConexionDB.getConexion();
+             java.sql.PreparedStatement ps = con.prepareStatement(sqlPropietarios);
+             java.sql.ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String nombre = rs.getString("nombre");
+                String correo = rs.getString("correo");
+                String cuerpo = "Estimado(a) " + nombre + ",\n\n"
+                              + "Le informamos que la cuota mensual ha sido actualizada:\n\n"
+                              + "  Nueva cuota: Q. " + String.format("%,.2f", nuevaCuota) + "\n\n"
+                              + "Este cambio aplica solo a pagos futuros.\n\n"
+                              + "Atentamente,\n" + EmailConfig.NOMBRE_REMITENTE;
+                try {
+                    EnviarCorreo.enviar(correo, asunto, cuerpo);
+                    enviados++;
+                } catch (javax.mail.MessagingException me) {
+                    fallidos++;
+                }
+            }
+        } catch (java.sql.SQLException e) {
+            mostrarError("La cuota se actualizó, pero falló la consulta de "
+                       + "propietarios para notificar: " + e.getMessage());
+            jTextField1.setText("");
+            return;
+        }
+
         javax.swing.JOptionPane.showMessageDialog(this,
                 "Cuota actualizada exitosamente.\n"
               + "Nueva cuota: Q. " + String.format("%,.2f", nuevaCuota) + "\n"
-              + "El cambio aplica solo a pagos futuros.",
+              + "El cambio aplica solo a pagos futuros.\n\n"
+              + "Correos enviados: " + enviados + "\n"
+              + "Correos fallidos: " + fallidos,
                 "Actualización exitosa",
                 javax.swing.JOptionPane.INFORMATION_MESSAGE);
 

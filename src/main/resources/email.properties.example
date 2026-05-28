@@ -1,0 +1,16 @@
+# PLANTILLA de configuracion SMTP.
+# Copia este archivo a "email.properties" (en la misma carpeta) y rellena tus
+# credenciales reales de Brevo. El archivo email.properties esta ignorado por
+# git y NO debe subirse al repositorio.
+
+email.host=smtp-relay.brevo.com
+email.puerto=587
+
+# Credenciales de autenticacion de Brevo (SMTP & API > SMTP)
+# El usuario tiene forma xxxx@smtp-brevo.com
+email.smtp.usuario=tu-usuario@smtp-brevo.com
+email.smtp.clave=tu-smtp-key-de-brevo
+
+# Remitente visible para el destinatario (verificado en Brevo)
+email.remitente=tu-remitente@ejemplo.com
+email.nombre.remitente=Condominio Vista Verde

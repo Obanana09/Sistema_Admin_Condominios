@@ -24,7 +24,7 @@ private void configurarVentana() {
 
 private void cargarCasas() {
     jComboBox1.removeAllItems();
-    jComboBox1.addItem("-- Selecciona una casa --");
+    jComboBox1.addItem("Seleccione una casa");
     for (int i = 1; i <= 30; i++) {
         jComboBox1.addItem(String.valueOf(i));
     }
@@ -32,7 +32,7 @@ private void cargarCasas() {
 
 private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {
     String seleccion = (String) jComboBox1.getSelectedItem();
-    if (seleccion == null || seleccion.equals("-- Selecciona una casa --")) {
+    if (seleccion == null || seleccion.equals("Seleccione una casa")) {
         jLabel3.setText("Selecciona una casa para ver la información.");
         limpiarTabla();
         return;
