@@ -1,0 +1,12 @@
+# Credenciales reales (NO subir). Usar email.properties.example como plantilla.
+src/main/resources/email.properties
+
+# Build
+target/
+
+# Copia suelta de la BD en la raiz (la real esta en BD/)
+/condominio_vistaverde.db
+
+# IDE
+.vscode/
+*.class
