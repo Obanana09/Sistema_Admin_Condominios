@@ -524,4 +524,7 @@ Ideas para reforzar y hacer crecer el proyecto más allá del alcance académico
 
 ## Autores
 
-- _(completar con los integrantes del equipo)_
+- Brian Josue Sanchez Martinez
+- Gerardo Javier Silvestre Melchor
+- Jorge Enrique Coloma Sanchez
+- Jose Rodrigo de Leon Tot
